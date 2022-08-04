@@ -45,3 +45,9 @@ It was easy enough to get a very minimal example up and running. The data struct
 ```
 
 so making a basic graph of the RSD will require fetching a number of contributors, a number of software/projects, and the links between contributors and software/projects.
+
+
+## Mimimum working example:
+![network_graph_mwe](https://user-images.githubusercontent.com/17080502/182891021-9f12a247-c570-4cc7-924c-8cc0b1e5fa0f.png)
+
+Or see a live preview via githack: https://raw.githack.com/Peter9192/rsd-graph/main/index.html
