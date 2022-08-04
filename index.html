@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph test</title>
+</head>
+<body>
+  <h1>Test graph</h1>
+  <div id="mydiv"></div>
+  <script src="https://unpkg.com/force-graph"></script>
+  <script>
+    const myData = {
+      "nodes": [
+        {"id": "id1", "name": "name1", "val": 1},
+        {"id": "id2", "name": "name2", "val": 10, "color": "red"},
+        {"id": "id3", "name": "name3", "val": 10},
+        {"id": "id4", "name": "name4", "val": 10},
+        {"id": "id5", "name": "name5", "val": 10},
+        {"id": "id6", "name": "name6", "val": 10},
+        {"id": "id7", "name": "name7", "val": 10},
+        {"id": "id8", "name": "name8", "val": 10},
+      ],
+      "links": [
+        {"source": "id1", "target": "id2"},
+        {"source": "id1", "target": "id3"},
+        {"source": "id1", "target": "id4"},
+        {"source": "id3", "target": "id2"},
+        {"source": "id4", "target": "id2"},
+        {"source": "id4", "target": "id7"},
+        {"source": "id7", "target": "id8"},
+      ]
+    };
+    const myDiv = document.getElementById("mydiv");
+    const myGraph = ForceGraph();
+    myGraph(myDiv).graphData(myData).nodeAutoColorBy("name");
+  </script>
+</body>
+</html>
