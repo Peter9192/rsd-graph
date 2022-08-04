@@ -11,30 +11,49 @@
   <div id="mydiv"></div>
   <script src="https://unpkg.com/force-graph"></script>
   <script>
-    const myData = {
-      "nodes": [
-        {"id": "id1", "name": "name1", "val": 1},
-        {"id": "id2", "name": "name2", "val": 10, "color": "red"},
-        {"id": "id3", "name": "name3", "val": 10},
-        {"id": "id4", "name": "name4", "val": 10},
-        {"id": "id5", "name": "name5", "val": 10},
-        {"id": "id6", "name": "name6", "val": 10},
-        {"id": "id7", "name": "name7", "val": 10},
-        {"id": "id8", "name": "name8", "val": 10},
-      ],
-      "links": [
-        {"source": "id1", "target": "id2"},
-        {"source": "id1", "target": "id3"},
-        {"source": "id1", "target": "id4"},
-        {"source": "id3", "target": "id2"},
-        {"source": "id4", "target": "id2"},
-        {"source": "id4", "target": "id7"},
-        {"source": "id7", "target": "id8"},
-      ]
-    };
-    const myDiv = document.getElementById("mydiv");
-    const myGraph = ForceGraph();
-    myGraph(myDiv).graphData(myData).nodeAutoColorBy("name");
+    // Use IIFE for async code doesn't work in top level script
+    (async () => {
+      // Fetch projects
+      let response = await fetch("https://research-software-directory.org/api/v1/project?select=id,title");
+      const projects = await response.json();
+
+      // Fetch project team members
+      response = await fetch("https://research-software-directory.org/api/v1/team_member?select=id,project,orcid,given_names,family_names");
+      const teamMembers = await response.json();
+
+      // The same person can have multiple entries as team member with different IDs.
+      // Only keep members with orcids
+      const orcidMembers = teamMembers.filter(member => member.orcid != null)
+      // Collapse members with the same orcid
+      const set = new Set;
+      const uniqueMembers = teamMembers.filter(member => !set.has(member.orcid) && set.add(member.orcid))
+      // Use orcid as ID instead
+      uniqueMembers.forEach(member => member.id = member.orcid)
+
+      // Create links array consisting of matches between projects and team members
+      // Only keep links for which we have both the project and the member
+      const links = orcidMembers.map((member) => {
+        return {"source": member.orcid, "target": member.project}
+      }).filter(link => projects.some(project => project.id === link.target));
+
+
+      // Create node array consisting of both projects and team members
+      projects.forEach(project => {
+        project.type = "project";
+        project.name = project.title
+      });
+      uniqueMembers.forEach(member => {
+        member.type = "person";
+        member.name = member.given_names + ' ' + member.family_names;
+      });
+      const nodes = [...projects, ...uniqueMembers];
+
+      // Draw graph
+      const graphData = {"nodes": nodes, "links": links};
+      const myDiv = document.getElementById("mydiv");
+      const myGraph = ForceGraph();
+      myGraph(myDiv).graphData(graphData).nodeAutoColorBy("type").nodeLabel('name').nodeVal(10);
+    })();
   </script>
 </body>
 </html>
